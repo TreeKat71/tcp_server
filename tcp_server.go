@@ -26,7 +26,7 @@ func (c *Client) listen() {
 	c.Server.onNewClientCallback(c)
 	reader := bufio.NewReader(c.conn)
 	for {
-		message, err := reader.ReadString('\n')
+		_, err := reader.ReadString('\n')
 		if err != nil {
 			c.conn.Close()
 			c.Server.onClientConnectionClosed(c, err)
