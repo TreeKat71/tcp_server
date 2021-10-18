@@ -45,10 +45,8 @@ func (c *Client) Send(message string) error {
 // Send bytes to client
 func (c *Client) SendBytes(b []byte) error {
 	_, err := c.conn.Write(b)
-	if err != nil {
-		c.conn.Close()
-		c.Server.onClientConnectionClosed(c, err)
-	}
+	c.conn.Close()
+	c.Server.onClientConnectionClosed(c, err)
 	return err
 }
 
@@ -71,9 +69,9 @@ func (s *server) OnClientConnectionClosed(callback func(c *Client, err error)) {
 }
 
 // Called when Client receives new message
-func (s *server) OnNewMessage(callback func(c *Client, message string)) {
-	s.onNewMessage = callback
-}
+// func (s *server) OnNewMessage(callback func(c *Client, message string)) {
+// 	s.onNewMessage = callback
+// }
 
 // Listen starts network server
 func (s *server) Listen() {
@@ -107,21 +105,8 @@ func New(address string) *server {
 	}
 
 	server.OnNewClient(func(c *Client) {})
-	server.OnNewMessage(func(c *Client, message string) {})
+	// server.OnNewMessage(func(c *Client, message string) {})
 	server.OnClientConnectionClosed(func(c *Client, err error) {})
 
-	return server
-}
-
-func NewWithTLS(address, certFile, keyFile string) *server {
-	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
-	if err != nil {
-		log.Fatal("Error loading certificate files. Unable to create TCP server with TLS functionality.\r\n", err)
-	}
-	config := &tls.Config{
-		Certificates: []tls.Certificate{cert},
-	}
-	server := New(address)
-	server.config = config
 	return server
 }
